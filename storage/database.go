@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -10,10 +11,9 @@ import (
 
 type urlMapper map[uint64]item
 type item struct {
-	id            uint64
 	longUrl       string
 	creationDate  time.Time
-	LastVisitDate time.Time
+	LastVisitTime time.Time
 }
 
 var urlTable urlMapper
@@ -29,16 +29,36 @@ func initMapper(url main.shortUrl) urlMapper {
 /*
  * Get a long url from a short url in the db
  */
-func GetUrl(id uint64) string {
+func GetUrl(id uint64) (string, error) {
+	if !isInDB(id) {
+		return "", fmt.Errorf("id not found")
+	}
+	item := urlTable[id]
+	// Update last request time:
+	item.LastVisitTime = time.Now()
+	urlTable[id] = item
+
+	return item.longUrl, nil
 
 }
 
 /*
 * add a pair of long and short url
  */
-func addUrl(short main.shortUrl, long longUrl) {
-	_, ok := urlTable[short]
-	if !ok {
-		urlTable[short] = long
+func addUrl(newUrl string, id uint64) error {
+	if isInDB(id) {
+		return fmt.Errorf("id is taken")
+	}
+	newItem := item{newUrl, time.Now(), time.Now()}
+	urlTable[id] = newItem
+	return nil
+}
+
+func isInDB(id uint64) bool {
+	_, ok := urlTable[id]
+	if ok {
+		return true
+	} else {
+		return false
 	}
 }
