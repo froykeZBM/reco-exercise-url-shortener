@@ -1,8 +1,8 @@
-package redirect
+package handler
 
 import (
+	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 	"reco-exercise-url-shortener/base62"
 	"reco-exercise-url-shortener/storage"
@@ -10,22 +10,26 @@ import (
 
 func shortenUrl(fullUrl string) (string, error) {
 
-	url, err := url.Parse(fullUrl)
+	parsedUrl, err := url.Parse(fullUrl)
 
 	if err != nil {
-		return string(http.StatusBadRequest), fmt.Errorf("Invalid url")
+		return "", fmt.Errorf("invalid parsedUrl")
 	}
 
-	host := url.Host
+	host := parsedUrl.Host
 
 	id, err := base62.Decode(host)
 
 	if err != nil {
-		return "", err
+		return "", errors.New("invalid encoding")
 	}
 
-	longUrl := storage.GetUrl(id)
-	url.Host = longUrl
+	longUrl, err := storage.GetUrl(id)
 
-	return url.String(), nil
+	if err != nil {
+		return "", err
+	}
+	parsedUrl.Host = longUrl
+
+	return parsedUrl.String(), nil
 }
