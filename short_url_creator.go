@@ -1,4 +1,4 @@
-package reco_exercise_url_shortener
+package main
 
 /*
  * Create Short Urls
