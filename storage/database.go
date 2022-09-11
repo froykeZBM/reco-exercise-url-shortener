@@ -26,7 +26,6 @@ func initMapper(url main.shortUrl) urlMapper {
 	return urlTable
 }
 
-/
 /*
  * Get a long url from a short url in the db
  */
