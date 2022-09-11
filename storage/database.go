@@ -21,7 +21,7 @@ var urlTable urlMapper
 /*
  * Init the database
  */
-func initMapper(url main.shortUrl) urlMapper {
+func initMapper() urlMapper {
 	urlTable := make(urlMapper)
 	return urlTable
 }
