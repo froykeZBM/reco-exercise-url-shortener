@@ -20,9 +20,7 @@ func GetOriginalUrl(fullUrl string) (string, error) {
 	}
 
 	host := parsedUrl.String()
-	fmt.Println("host is:", host)
 	id, err := base62.Decode(host)
-	fmt.Println("Found ID:", id)
 	if err != nil {
 		return "", InvalidEncoding
 	}
