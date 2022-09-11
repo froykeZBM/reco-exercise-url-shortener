@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 	"reco-exercise-url-shortener/url_generator"
 )
 
-func handle_request(w http.ResponseWriter, r *http.Request) {
+func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.Error(w, "404 not found.", http.StatusNotFound)
 		return
@@ -29,13 +29,12 @@ func handle_request(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		longUrl := r.URL.String()
 		id := url_generator.CreateID(longUrl)
-		err = storage.AddUrl(longUrl, id)
+		err := storage.AddUrl(longUrl, id)
 		if err != nil {
 			_, err := w.Write([]byte("ID is in use"))
 			if err != nil {
 				return
 			}
-
 		}
 	}
 }

@@ -16,15 +16,15 @@ type item struct {
 	LastVisitTime time.Time
 }
 
-var urlTable urlMapper
+var UrlTable urlMapper
 var NotFoundInDB error = fmt.Errorf("id not found")
 
 /*
  * Init the database
  */
-func initMapper() urlMapper {
-	urlTable := make(urlMapper)
-	return urlTable
+func InitMapper() /*urlMapper*/ {
+	UrlTable = make(urlMapper, 10000)
+	//return UrlTable
 }
 
 /*
@@ -34,10 +34,10 @@ func GetUrl(id uint64) (string, error) {
 	if !isInDB(id) {
 		return "", NotFoundInDB
 	}
-	item := urlTable[id]
+	item := UrlTable[id]
 	// Update last request time:
 	item.LastVisitTime = time.Now()
-	urlTable[id] = item
+	UrlTable[id] = item
 
 	return item.longUrl, nil
 
@@ -48,15 +48,16 @@ func GetUrl(id uint64) (string, error) {
  */
 func AddUrl(newUrl string, id uint64) error {
 	if isInDB(id) {
+		//TODO: check if new url matches the id, and then just update the creation time
 		return fmt.Errorf("id is taken")
 	}
 	newItem := item{newUrl, time.Now(), time.Now()}
-	urlTable[id] = newItem
+	UrlTable[id] = newItem
 	return nil
 }
 
 func isInDB(id uint64) bool {
-	_, ok := urlTable[id]
+	_, ok := UrlTable[id]
 	if ok {
 		return true
 	} else {
