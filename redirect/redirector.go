@@ -8,8 +8,8 @@ import (
 	"reco-exercise-url-shortener/storage"
 )
 
-var InvalidEncoding error = errors.New("invalid encoding")
-var URLParseError error = fmt.Errorf("invalid parsedUrl")
+var InvalidEncoding = errors.New("invalid encoding")
+var URLParseError = fmt.Errorf("invalid parsedUrl")
 
 func GetOriginalUrl(fullUrl string) (string, error) {
 
