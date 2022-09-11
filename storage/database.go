@@ -17,19 +17,13 @@ type item struct {
 }
 
 var UrlTable urlMapper
-var NotFoundInDB error = fmt.Errorf("id not found")
+var NotFoundInDB = fmt.Errorf("id not found")
 
-/*
- * Init the database
- */
 func InitMapper() /*urlMapper*/ {
 	UrlTable = make(urlMapper, 10000)
 	//return UrlTable
 }
 
-/*
- * Get a long url from a short url in the db
- */
 func GetUrl(id uint64) (string, error) {
 	if !isInDB(id) {
 		return "", NotFoundInDB
@@ -43,9 +37,6 @@ func GetUrl(id uint64) (string, error) {
 
 }
 
-/*
-* add a pair of long and short url
- */
 func AddUrl(newUrl string, id uint64) error {
 	if isInDB(id) {
 		//TODO: check if new url matches the id, and then just update the creation time
