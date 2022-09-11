@@ -14,15 +14,15 @@ var URLParseError = fmt.Errorf("invalid parsedUrl")
 func GetOriginalUrl(fullUrl string) (string, error) {
 
 	parsedUrl, err := url.Parse(fullUrl)
-
+	parsedUrl.Query()
 	if err != nil {
 		return "", URLParseError
 	}
 
-	host := parsedUrl.Host
-
+	host := parsedUrl.String()
+	fmt.Println("host is:", host)
 	id, err := base62.Decode(host)
-
+	fmt.Println("Found ID:", id)
 	if err != nil {
 		return "", InvalidEncoding
 	}
@@ -32,7 +32,5 @@ func GetOriginalUrl(fullUrl string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	parsedUrl.Host = longUrl
-
-	return parsedUrl.String(), nil
+	return longUrl, nil
 }
