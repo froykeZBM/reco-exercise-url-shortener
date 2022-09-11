@@ -1,5 +1,6 @@
 package base62
 
+/* File for decoding and encoding */
 import (
 	"errors"
 	"math"
