@@ -11,10 +11,8 @@ import (
 	"reco-exercise-url-shortener/url_generator"
 )
 
-func getLongUrl(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.URL.String())
+func redirectLongUrl(w http.ResponseWriter, r *http.Request) {
 	longUrl, err := redirector.GetOriginalUrl(r.URL.String()[1:])
-	fmt.Println("long url is:", longUrl)
 	var status int
 	switch err {
 	case nil:
@@ -24,7 +22,6 @@ func getLongUrl(w http.ResponseWriter, r *http.Request) {
 	default:
 		status = http.StatusBadGateway
 	}
-	fmt.Println(longUrl)
 	http.Redirect(w, r, longUrl, status)
 }
 
@@ -61,7 +58,7 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "GET":
-		getLongUrl(w, r)
+		redirectLongUrl(w, r)
 	case "POST":
 		storeUrlAndReturnShort(w, r)
 	}
