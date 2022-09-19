@@ -35,12 +35,12 @@ var client *redis.Client
 func InitStorage() error {
 	UrlTable = make(urlMapper, 10000)
 	//return UrlTable
-	Client := redis.NewClient(&redis.Options{
+	client = redis.NewClient(&redis.Options{
 		Addr:     redisAddress,
 		Password: "",
 		DB:       0,
 	})
-	_, err := Client.Ping().Result()
+	_, err := client.Ping().Result()
 	if err != nil {
 		// if we cannot initialize the redis client, this is a fatal error
 		return FatalDbError
