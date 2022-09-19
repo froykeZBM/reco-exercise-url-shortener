@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -32,12 +31,10 @@ func storeUrlAndReturnShort(w http.ResponseWriter, r *http.Request) {
 	}
 	longUrl := string(reqBody)
 	id := url_generator.CreateID(longUrl)
-	fmt.Println("adding new url with id", longUrl, id)
 	err = storage.AddUrl(longUrl, id)
-	if err != nil {
-		_, err := w.Write([]byte("ID is in use"))
+	if err != nil && err != storage.IdTakenError {
+		_, err := w.Write([]byte("Failed to append the id"))
 		if err != nil {
-			fmt.Println("Failed to send back the shortened url")
 			return
 		}
 	}
