@@ -26,6 +26,8 @@ var NotFoundInDB = fmt.Errorf("id not found")
 var FatalDbError = fmt.Errorf("fatal error in database handling")
 var SaveError = fmt.Errorf("Could not save in db.")
 
+// I'm having trouble configuring the redis container.
+// This is the IP address of the container for now (and it works)
 const redisAddress string = "172.22.112.1:6379"
 
 var client *redis.Client
