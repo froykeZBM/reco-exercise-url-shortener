@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	storage.InitMapper()
+	storage.InitStorage()
 	http.HandleFunc("/", handler.HandleRequest)
 
 	fmt.Printf("Starting server for testing HTTP POST...\n")

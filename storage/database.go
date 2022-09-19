@@ -21,11 +21,11 @@ type item struct {
 var UrlTable urlMapper
 var NotFoundInDB = fmt.Errorf("id not found")
 
-const redisAddress string = "redis://default:redispw@localhost:49153"
+const redisAddress string = "172.22.112.1:6379"
 
 var client *redis.Client
 
-func InitStorage() /*urlMapper*/ {
+func InitStorage() error {
 	UrlTable = make(urlMapper, 10000)
 	//return UrlTable
 	client := redis.NewClient(&redis.Options{
@@ -33,8 +33,8 @@ func InitStorage() /*urlMapper*/ {
 		Password: "",
 		DB:       0,
 	})
-	pong, err := client.Ping().Result()
-	fmt.Println(pong, err)
+	_, err := client.Ping().Result()
+	return err
 }
 
 func GetUrl(id uint64) (string, error) {
