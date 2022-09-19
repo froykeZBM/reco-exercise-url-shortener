@@ -20,6 +20,7 @@ type item struct {
 
 var UrlTable urlMapper
 var NotFoundInDB = fmt.Errorf("id not found")
+var FatalDbError = fmt.Errorf("fatal error in database handling")
 
 const redisAddress string = "172.22.112.1:6379"
 
@@ -28,12 +29,16 @@ var client *redis.Client
 func InitStorage() error {
 	UrlTable = make(urlMapper, 10000)
 	//return UrlTable
-	client := redis.NewClient(&redis.Options{
+	Client := redis.NewClient(&redis.Options{
 		Addr:     redisAddress,
 		Password: "",
 		DB:       0,
 	})
-	_, err := client.Ping().Result()
+	_, err := Client.Ping().Result()
+	if err != nil {
+		// if we cannot initialize the redis client, this is a fatal error
+		return FatalDbError
+	}
 	return err
 }
 
@@ -61,10 +66,10 @@ func AddUrl(newUrl string, id uint64) error {
 }
 
 func isInDB(id uint64) bool {
-	_, ok := UrlTable[id]
-	if ok {
-		return true
-	} else {
+	_, err := client.Get(fmt.Sprint((id))).Result()
+	if err == redis.Nil {
 		return false
+	} else {
+		return true
 	}
 }
