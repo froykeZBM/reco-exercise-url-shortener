@@ -57,30 +57,11 @@ func GetUrl(id uint64) (string, error) {
 	if !isInDB(id) {
 		return "", NotFoundInDB
 	}
-	id_str := fmt.Sprint(id)
-	data, err := client.Get(id_str).Result()
+	item, err := GetUrlStruct(id)
 	if err != nil {
 		return "", err
 	}
-
-	// I'm not sure if using the json encoding is neccessary
-	// Pros: simpler storage in the db and easy serilizing
-	// Cons: might increase a single entry size in the db.
-	var item urlItem
-	err = json.Unmarshal([]byte(data), &item)
-	if err != nil {
-		return "", err
-	}
-	// Update last request time:
-	item.LastVisitTime = time.Now()
-	item.VisitNum += 1
-	newData, err := json.Marshal(item)
-	var errReturned error = nil
-	_, err = client.Set(id_str, newData, 0).Result()
-	if err != nil {
-		errReturned = SaveError
-	}
-	return item.LongUrl, errReturned
+	return item.LongUrl, nil
 
 }
 
@@ -117,12 +98,11 @@ func AddUrl(newUrl string, id uint64) error {
 
 	data, err := json.Marshal(newUrlItem)
 	if err != nil {
-		fmt.Println(err)
 		return SaveError
 	}
 	_, err = client.Set(id_str, data, 0).Result()
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 	return nil
 }
