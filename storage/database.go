@@ -3,6 +3,8 @@ package storage
 import (
 	"fmt"
 	"time"
+
+	"github.com/go-redis/redis"
 )
 
 /*
@@ -19,9 +21,20 @@ type item struct {
 var UrlTable urlMapper
 var NotFoundInDB = fmt.Errorf("id not found")
 
-func InitMapper() /*urlMapper*/ {
+const redisAddress string = "redis://default:redispw@localhost:49153"
+
+var client *redis.Client
+
+func InitStorage() /*urlMapper*/ {
 	UrlTable = make(urlMapper, 10000)
 	//return UrlTable
+	client := redis.NewClient(&redis.Options{
+		Addr:     redisAddress,
+		Password: "",
+		DB:       0,
+	})
+	pong, err := client.Ping().Result()
+	fmt.Println(pong, err)
 }
 
 func GetUrl(id uint64) (string, error) {
