@@ -24,7 +24,7 @@ func TestSimpleGetSet(t *testing.T) {
 		t.Errorf("Failed to init the db client")
 	}
 	err = AddUrl(exampleUrl, exampleKey)
-	if (err != nil) && (err != IdTakenError) {
+	if (err != nil) && (err != IdTakenError) { // The url could already be in the DB
 		t.Errorf("Failed with the following exception: %v", err)
 	}
 	url, err := GetUrl(exampleKey)
