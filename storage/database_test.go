@@ -43,12 +43,11 @@ func TestJsonEncoding(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 	var newUrlItem urlItem
-	newUrlItem.longUrl = "hi there"
 	err = json.Unmarshal(data, &newUrlItem)
 	if err != nil {
 		t.Errorf("%v", err)
 	}
-	if newUrlItem != origUrlItem {
-		t.Errorf("mismatch in marshalling: %v vs %v", newUrlItem, origUrlItem)
+	if newUrlItem.LongUrl != origUrlItem.LongUrl {
+		t.Errorf("mismatch in marshalling: %v vs %v", newUrlItem.LongUrl, origUrlItem.LongUrl)
 	}
 }

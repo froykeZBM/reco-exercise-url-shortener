@@ -14,7 +14,7 @@ import (
 
 type urlMapper map[uint64]urlItem
 type urlItem struct {
-	longUrl          string
+	LongUrl          string
 	LastCreationDate time.Time
 	LastVisitTime    time.Time
 	VisitNum         int32
@@ -58,19 +58,16 @@ func GetUrl(id uint64) (string, error) {
 		return "", NotFoundInDB
 	}
 	id_str := fmt.Sprint(id)
-	data_str, err := client.Get(id_str).Result()
+	data, err := client.Get(id_str).Result()
 	if err != nil {
 		return "", err
 	}
-	data := []byte(data_str)
-	fmt.Println("data received is : ", data)
 
 	// I'm not sure if using the json encoding is neccessary
 	// Pros: simpler storage in the db and easy serilizing
 	// Cons: might increase a single entry size in the db.
 	var item urlItem
 	err = json.Unmarshal([]byte(data), &item)
-	fmt.Println("item is", item)
 	if err != nil {
 		return "", err
 	}
@@ -83,24 +80,47 @@ func GetUrl(id uint64) (string, error) {
 	if err != nil {
 		errReturned = SaveError
 	}
-	return item.longUrl, errReturned
+	return item.LongUrl, errReturned
+
+}
+
+func createNewUrl(newUrl string) urlItem {
+	return urlItem{newUrl, time.Now(), time.Now(), 0, 1}
+}
+
+func updateExistingUrl(data_str string) (urlItem, error) {
+	var item urlItem
+	err := json.Unmarshal([]byte(data_str), &item)
+	if err != nil {
+		return urlItem{}, err
+	}
+	item.CreationNum += 1
+	item.LastCreationDate = time.Now()
+	return item, nil
 
 }
 
 func AddUrl(newUrl string, id uint64) error {
-	if isInDB(id) {
-		//TODO: check if new url matches the id, and then just update the creation time
-		return IdTakenError
+	id_str := fmt.Sprint(id)
+	data_str, err := client.Get(id_str).Result()
+	var newUrlItem urlItem
+	if err == redis.Nil {
+		newUrlItem = createNewUrl(newUrl)
+	} else if err != nil {
+		return err
+	} else {
+		newUrlItem, err = updateExistingUrl(data_str)
+		if err != nil {
+			return err
+		}
 	}
-	newurlItem := urlItem{newUrl, time.Now(), time.Now(), 0, 1}
-	fmt.Println(newurlItem)
-	data, err := json.Marshal(newurlItem)
+
+	data, err := json.Marshal(newUrlItem)
 	if err != nil {
 		fmt.Println(err)
 		return SaveError
 	}
-	fmt.Println("data to be added:", data)
-	_, err = client.Set(fmt.Sprint(id), data, 0).Result()
+	_, err = client.Set(id_str, data, 0).Result()
 	if err != nil {
 		fmt.Println(err)
 	}
