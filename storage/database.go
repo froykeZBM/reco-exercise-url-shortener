@@ -25,6 +25,7 @@ var UrlTable urlMapper
 var NotFoundInDB = fmt.Errorf("id not found")
 var FatalDbError = fmt.Errorf("fatal error in database handling")
 var SaveError = fmt.Errorf("Could not save in db.")
+var IdTakenError = fmt.Errorf("Id is taken in the DB")
 
 // I'm having trouble configuring the redis container.
 // This is the IP address of the container for now (and it works)
@@ -57,16 +58,19 @@ func GetUrl(id uint64) (string, error) {
 		return "", NotFoundInDB
 	}
 	id_str := fmt.Sprint(id)
-	data, err := client.Get(id_str).Result()
+	data_str, err := client.Get(id_str).Result()
 	if err != nil {
 		return "", err
 	}
+	data := []byte(data_str)
+	fmt.Println("data received is : ", data)
+
 	// I'm not sure if using the json encoding is neccessary
 	// Pros: simpler storage in the db and easy serilizing
 	// Cons: might increase a single entry size in the db.
 	var item urlItem
 	err = json.Unmarshal([]byte(data), &item)
-
+	fmt.Println("item is", item)
 	if err != nil {
 		return "", err
 	}
@@ -74,7 +78,6 @@ func GetUrl(id uint64) (string, error) {
 	item.LastVisitTime = time.Now()
 	item.VisitNum += 1
 	newData, err := json.Marshal(item)
-
 	var errReturned error = nil
 	_, err = client.Set(id_str, newData, 0).Result()
 	if err != nil {
@@ -87,14 +90,16 @@ func GetUrl(id uint64) (string, error) {
 func AddUrl(newUrl string, id uint64) error {
 	if isInDB(id) {
 		//TODO: check if new url matches the id, and then just update the creation time
-		return fmt.Errorf("id is taken")
+		return IdTakenError
 	}
 	newurlItem := urlItem{newUrl, time.Now(), time.Now(), 0, 1}
+	fmt.Println(newurlItem)
 	data, err := json.Marshal(newurlItem)
 	if err != nil {
 		fmt.Println(err)
 		return SaveError
 	}
+	fmt.Println("data to be added:", data)
 	_, err = client.Set(fmt.Sprint(id), data, 0).Result()
 	if err != nil {
 		fmt.Println(err)
